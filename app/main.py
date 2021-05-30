@@ -3,7 +3,7 @@ from cartly.config.database import engine, SessionLocal
 
 from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 
 from cartly.model import user as models
@@ -14,11 +14,18 @@ app = FastAPI()
 
 models.Base.metadata.create_all(bind=engine)
 
-
-models.Base.metadata.create_all(bind=engine)
-
 app = FastAPI()
 
+
+@app.middleware("http")
+async def db_session_middleware(request: Request, call_next):
+    response = Response("Internal server error", status_code=500)
+    try:
+        request.state.db = SessionLocal()
+        response = await call_next(request)
+    finally:
+        request.state.db.close()
+    return response
 
 # Dependency
 def get_db():
