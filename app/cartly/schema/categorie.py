@@ -3,18 +3,17 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-class ItemBase(BaseModel):
-    title: str
-    description: Optional[str] = None
+class CategorieBase(BaseModel):
+    slug: str
+    name: str
 
 
-class ItemCreate(ItemBase):
+class CategorieCreate(CategorieBase):
     pass
 
 
-class Item(ItemBase):
+class Categorie(CategorieBase):
     id: int
-    owner_id: int
 
     class Config:
         orm_mode = True

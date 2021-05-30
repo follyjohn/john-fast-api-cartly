@@ -7,8 +7,8 @@ from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 
 from cartly.model import user as models
-from cartly.schema import scheme as schemas
-from cartly.controller import crud
+from cartly.schema import user as schemas, categorie as CategorieShema
+from cartly.controller import user, categorie as CategorieController
 
 app = FastAPI()
 
@@ -35,6 +35,14 @@ def get_db():
     finally:
         db.close()
 
+@app.get("/categories/", response_model = List[CategorieShema.Categorie])
+def get_categories(skip: int=0, limit: int=100, db: Session=Depends(get_db)):
+    categories = CategorieController.get_categories(db, skip=skip, limit=limit)
+    return categories
+
+@app.post("/categories/", response_model = CategorieShema.Categorie)
+def create_categorie(categorie: CategorieShema.CategorieCreate, db: Session = Depends(get_db)):
+    return CategorieController.create_categorie(db, categorie=categorie)
 
 @app.post("/users/", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
